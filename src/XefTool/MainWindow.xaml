@@ -1,0 +1,207 @@
+<ui:FluentWindow x:Class="XefTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:XefTool.ViewModels"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        mc:Ignorable="d"
+        Title="XEF Tool - Kinect V2 图像导出" Height="700" Width="850"
+        WindowStartupLocation="CenterScreen"
+        ExtendsContentIntoTitleBar="True">
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <local:InvertBoolConverter x:Key="InvertBoolConverter"
+                                   xmlns:local="clr-namespace:XefTool.Converters" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0"
+                     Title="XEF Tool - Kinect V2 图像导出"
+                     ShowMaximize="False" />
+
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 输入文件 -->
+        <ui:CardExpander Grid.Row="0" Margin="0,0,0,8" IsExpanded="True">
+            <ui:CardExpander.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Document24" Margin="0,0,8,0" />
+                    <TextBlock Text="输入文件" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBox Grid.Column="0"
+                            Text="{Binding InputFilePath, Mode=OneWay}"
+                            IsReadOnly="True"
+                            PlaceholderText="请选择 .xef 文件..."
+                            Margin="0,0,8,0" />
+                <ui:Button Grid.Column="1"
+                           Command="{Binding BrowseInputFileCommand}"
+                           Appearance="Primary">
+                    <ui:SymbolIcon Symbol="FolderOpen24" />
+                </ui:Button>
+            </Grid>
+        </ui:CardExpander>
+
+        <!-- 文件信息 -->
+        <ui:Card Grid.Row="1" Margin="0,0,0,8" Padding="12">
+            <TextBlock Text="{Binding FileInfoText}"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       FontSize="12" />
+        </ui:Card>
+
+        <!-- 输出目录 & 选项 -->
+        <ui:CardExpander Grid.Row="2" Margin="0,0,0,8" IsExpanded="True">
+            <ui:CardExpander.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="FolderZip24" Margin="0,0,8,0" />
+                    <TextBlock Text="输出设置" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+            <StackPanel>
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBox Grid.Column="0"
+                                Text="{Binding OutputDirectory, Mode=OneWay}"
+                                IsReadOnly="True"
+                                PlaceholderText="请选择输出文件夹..."
+                                Margin="0,0,8,0" />
+                    <ui:Button Grid.Column="1"
+                               Command="{Binding BrowseOutputDirectoryCommand}">
+                        <ui:SymbolIcon Symbol="FolderOpen24" />
+                    </ui:Button>
+                </Grid>
+
+                <TextBlock Text="导出选项:" FontWeight="SemiBold" Margin="0,0,0,8" />
+                <WrapPanel Margin="0,0,0,8">
+                    <CheckBox Content="彩色图像 (Color)" IsChecked="{Binding ExportColor}" Margin="0,0,20,0" />
+                    <CheckBox Content="深度图像 (Depth)" IsChecked="{Binding ExportDepth}" Margin="0,0,20,0" />
+                    <CheckBox Content="红外图像 (IR)" IsChecked="{Binding ExportIr}" Margin="0,0,20,0" />
+                </WrapPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <TextBlock Text="彩色格式:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <ComboBox Width="100" SelectedItem="{Binding ColorFormat}">
+                        <ComboBoxItem Content="jpg" IsSelected="True" />
+                        <ComboBoxItem Content="png" />
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+        </ui:CardExpander>
+
+        <!-- 文件诊断 -->
+        <ui:CardExpander Grid.Row="3" Margin="0,0,0,8">
+            <ui:CardExpander.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Doctor24" Margin="0,0,8,0" />
+                    <TextBlock Text="文件诊断" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+            <StackPanel>
+                <TextBlock Text="诊断当前选中的 XEF 文件，检查文件完整性和帧数据。"
+                           TextWrapping="Wrap" Margin="0,0,0,12"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" />
+                <ui:Button Command="{Binding StartDiagnosticsCommand}"
+                           Appearance="Primary"
+                           IsEnabled="{Binding IsBusy, Converter={StaticResource InvertBoolConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="HeartPulse24" Margin="0,0,6,0" />
+                        <TextBlock Text="开始诊断" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ui:Button>
+            </StackPanel>
+        </ui:CardExpander>
+
+        <!-- 日志区域 -->
+        <ui:CardExpander Grid.Row="4" Margin="0,0,0,8">
+            <ui:CardExpander.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="TextBulletList24" Margin="0,0,8,0" />
+                    <TextBlock Text="日志" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+            <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                    CornerRadius="6" MinHeight="120">
+                <TextBox Text="{Binding LogText, Mode=OneWay}"
+                         IsReadOnly="True"
+                         TextWrapping="Wrap"
+                         FontSize="12" FontFamily="Consolas"
+                         Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Padding="8"
+                         VerticalScrollBarVisibility="Auto"
+                         x:Name="LogTextBox"
+                         TextChanged="LogTextBox_TextChanged" />
+            </Border>
+        </ui:CardExpander>
+
+        <!-- 状态栏 -->
+        <Grid Grid.Row="5" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                       Text="{Binding StatusText}"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       FontSize="12" />
+            <TextBlock Grid.Column="1"
+                       Text="{Binding ProgressText}"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       FontSize="12" />
+        </Grid>
+
+        <!-- 操作按钮 -->
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+            <ui:Button Command="{Binding StartExportCommand}"
+                       Appearance="Primary"
+                       IsEnabled="{Binding IsBusy, Converter={StaticResource InvertBoolConverter}}"
+                       Margin="0,0,8,0">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Play24" Margin="0,0,6,0" />
+                    <TextBlock Text="开始导出" VerticalAlignment="Center" />
+                </StackPanel>
+            </ui:Button>
+            <ui:Button Command="{Binding CloseOrCancelCommand}"
+                       Appearance="Danger">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Dismiss24" Margin="0,0,6,0" />
+                    <TextBlock Text="{Binding CloseButtonText}" VerticalAlignment="Center" />
+                </StackPanel>
+            </ui:Button>
+        </StackPanel>
+    </Grid>
+    </ScrollViewer>
+    </Grid>
+</ui:FluentWindow>
